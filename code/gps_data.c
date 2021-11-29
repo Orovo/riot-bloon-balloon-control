@@ -19,7 +19,8 @@ static char strTypes[8][4] = {"RMC", "GGA", "GSA", "GLL", "GST", "GSV", "VTG", "
 static kernel_pid_t rcv_tid;
 static void rx_cb(void *uart, uint8_t c);
 
-struct gps_data getGPSData(void) {
+// struct gps_data getGPSData(void) {
+int getGPSData(struct gps_data *returnStruct) {
     msg_t msg;
     char buff[100] = {0};
     //char sentences[4][100] = {0}; // {{rmc}, {gll}, {vtg}, {gsv}}
@@ -90,7 +91,11 @@ struct gps_data getGPSData(void) {
     data.time.mic= (uint32_t)srmc.time.microseconds;
 
     struct minmea_sentence_gll sgll;
-    minmea_parse_gll(&sgll, sentences[1]); // gll sentence
+    // minmea_parse_gll(&sgll, sentences[1]); // gll sentence
+    int res = minmea_parse_gll(&sgll, sentences[1]); // gll sentence
+    if (!res) {
+        puts("FAILURE: error parsing GPS sentence\n");
+    }
     data.gps.lng = minmea_tocoord(&sgll.longitude);
     data.gps.lat = minmea_tocoord(&sgll.latitude);
 
@@ -125,16 +130,20 @@ struct gps_data getGPSData(void) {
         //data.gps.lng, data.gps.lat, data.gps.vel);
         printf("GPS: long: %f, lat: %f, speed %f, height %f\n",
         data.gps.lng, data.gps.lat, data.gps.vel, data.gps.hei);
+        printf("Satellites: %i\n", data.n_satellites);
         printf("\n\n");
     }
 
-    return data;
+    // return data;
+    memcpy(returnStruct, &data, sizeof(struct gps_data));
+    return 0;
 }
 
 void initGPSData(kernel_pid_t lora_tid) {
     rcv_tid = lora_tid;
     uart_init(DEV, BAUDRATE, rx_cb, (void*)DEV);
-
+    const uint8_t command[] = "$PMTK225,0";
+    uart_write(DEV, command, sizeof(command));
     //const uint8_t command[] = "$PMTK225,9*22";
     /* const uint8_t command[] = "$PMTK161,0*28";
     uart_write(DEV, command, sizeof(command));
