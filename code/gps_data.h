@@ -24,6 +24,7 @@ struct gps {
     float lng;
     float lat;
     float vel;
+    float hei;
 };
 
 struct gps_data {

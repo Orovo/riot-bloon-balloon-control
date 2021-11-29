@@ -1,0 +1,35 @@
+https://gpsd.gitlab.io/gpsd/NMEA.html#_gga_global_positioning_system_fix_data
+
+Version 1
+    Try to adjust height to equal set gps marker
+        todo: add seperate loop
+        note: change data via global variable => float for height over MSL
+        done: add console call to set/reset target height
+        todo: add method to set/reset target height
+        done: extract all to seperate .c/.h file -> heightControll
+
+Fix Controll => Control
+
+BUILD_IN_DOCKER=1 BOARD=mini-loon make flash term
+
+https://www.hackster.io/386121/miniloon-60a9c9
+
+debug gps 1
+coap put fe80::860d:8eff:fe1d:ee9 5683 /actu/valvedown 1000
+coap put fe80::860d:8eff:fe1d:ee9 5683 /actu/valveup 1000
+
+coap get fe80::860d:8eff:fe1d:ee9 5683 /sens/temp
+
+todo
+    identify main goals
+        what data is needed
+            struct containing gps data & athmosphereic data
+        what accesspoints are needed => allready existing
+            coap get data/total     => sens/total
+            coap get data/humidity      => /sens/hum
+                coap get data/hum
+            coap get data/gps           => /sens/gps
+            coap get data/temperature   => /sens/temp
+                coap get data/tmp
+            coap get data/pressure      => /sens/press
+                coap get data/prs

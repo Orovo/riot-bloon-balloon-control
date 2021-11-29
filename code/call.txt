@@ -1,0 +1,6 @@
+hold inner button
+press outer button
+BUILD_IN_DOCKER=1 BOARD=mini-loon make flash
+
+BUILD_IN_DOCKER=1 BOARD=mini-loon make term
+

@@ -36,6 +36,8 @@
 #include "string.h"
 #include "led.h"
 
+#include "dataAccess.h"
+
 #define ENABLE_DEBUG (0)
 #include "debug.h"
 
@@ -250,14 +252,17 @@ static ssize_t temp_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
     } else {
         setLEDColor(0, RED);
     }
+    struct atmospheric_data atmo_dat = {0};
     phydat_t res;
     saul_reg_t *dev = saul_reg;
     if (dev == NULL) {
         //puts("No SAUL devices present");
         return gcoap_response(pdu, buf, len, COAP_CODE_INTERNAL_SERVER_ERROR);
     }
-    dev = saul_reg_find_type(SAUL_SENSE_TEMP);
-    if (dev == NULL) {
+    int err = accessAtmosphericData(&atmo_dat);
+    // dev = saul_reg_find_type(SAUL_SENSE_TEMP);
+    // if (dev == NULL) {
+    if (err != 0) {
         //puts("No Temperature Sensor devices present");
         return gcoap_response(pdu, buf, len, COAP_CODE_INTERNAL_SERVER_ERROR);
     }
@@ -268,7 +273,8 @@ static ssize_t temp_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
 
      //Read temperature sensor here and write buffer with sensor value 
     
-    saul_reg_read(dev, &res);
+    // saul_reg_read(dev, &res);
+    res = atmo_dat.temperature;
     resp_len += fmt_u16_dec((char *)pdu->payload, res.val[0]);
     return resp_len;   
 }
@@ -283,14 +289,17 @@ static ssize_t hum_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
     } else {
         setLEDColor(0, RED);
     }
+    struct atmospheric_data atmo_dat = {0};
     phydat_t res;
     saul_reg_t *dev = saul_reg;
     if (dev == NULL) {
        //puts("No SAUL devices present");
         return gcoap_response(pdu, buf, len, COAP_CODE_INTERNAL_SERVER_ERROR);
     }
-    dev = saul_reg_find_type(SAUL_SENSE_HUM);
-    if (dev == NULL) {
+    int err = accessAtmosphericData(&atmo_dat);
+    // dev = saul_reg_find_type(SAUL_SENSE_HUM);
+    // if (dev == NULL) {
+    if (err != 0) {
         //puts("No humidity Sensor devices present");
         return gcoap_response(pdu, buf, len, COAP_CODE_INTERNAL_SERVER_ERROR);
     }
@@ -300,7 +309,8 @@ static ssize_t hum_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
     size_t resp_len = coap_opt_finish(pdu, COAP_OPT_FINISH_PAYLOAD);
 
     // Read humidity sensor here and write buffer with sensor value 
-    saul_reg_read(dev, &res);
+    // saul_reg_read(dev, &res);
+    res = atmo_dat.humidity;
     resp_len += fmt_u16_dec((char *)pdu->payload, res.val[0]);
     return resp_len;   
 }
@@ -315,14 +325,17 @@ static ssize_t press_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ct
     } else {
         setLEDColor(0, RED);
     }
-    //phydat_t res;
+    // struct atmospheric_data atmo_dat = {0};  //TODO
+    // phydat_t res;
     saul_reg_t *dev = saul_reg;
     if (dev == NULL) {
         //puts("No SAUL devices present");
         return gcoap_response(pdu, buf, len, COAP_CODE_INTERNAL_SERVER_ERROR);
     }
+    // int err = accessAtmosphericData(&atmo_dat);  //TODO
     dev = saul_reg_find_type(SAUL_SENSE_PRESS);
     if (dev == NULL) {
+    // if (err != 0) {  //TODO
         //puts("No air pressure Sensor devices present");
         return gcoap_response(pdu, buf, len, COAP_CODE_INTERNAL_SERVER_ERROR);
     }
@@ -332,7 +345,8 @@ static ssize_t press_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ct
     size_t resp_len = coap_opt_finish(pdu, COAP_OPT_FINISH_PAYLOAD);
 
     // Read temperature sensor here and write buffer with sensor value 
-    //saul_reg_read(dev, &res);
+    // saul_reg_read(dev, &res);
+    // res = atmo_dat.pressure; //TODO
     resp_len += fmt_u32_dec((char *)pdu->payload, bmx280_read_pressure((bmx280_t *)(dev->dev)));
     return resp_len;   
 }

@@ -30,6 +30,9 @@
 //#include "kernel_types.h"
 #include "shell.h"
 
+#include "heightControl.h"
+#include "dataAccess.h"
+
 #include "gps_data.h"
 #include "periph/uart.h"
 #include "cbor_util.h"
@@ -38,8 +41,9 @@
 #define MSG_LENGTH 31
 #define MAIN_QUEUE_SIZE (4)
 
-bool DEBUG_GPS = false;
+bool DEBUG_GPS = true;
 bool DEBUG_LORA = false;
+bool DEBUG_ACCESS = false;
 
 static msg_t _main_msg_queue[MAIN_QUEUE_SIZE];
 
@@ -50,6 +54,8 @@ extern void gcoap_cli_init(void);
 static const shell_command_t shell_commands[] = {
     { "coap", "CoAP example", gcoap_cli_cmd },
     { "debug", "Toggle debug prints", debug_toggle },
+    { "heightControl/set", "Sets the target height variable", setTargetHeight },
+    { "heightControl/toggle", "Toggles the height control", toggleHeightControl },
     { NULL, NULL, NULL }
 };
 
@@ -61,6 +67,7 @@ bool join_procedure_succeeded = false;
 //static msg_t _recv_queue[RECV_MSG_QUEUE];
 //static char _recv_stack[THREAD_STACKSIZE_DEFAULT];
 static char _send_stack[THREAD_STACKSIZE_DEFAULT];
+// static char _height_control_stack[THREAD_STACKSIZE_DEFAULT];
 
 // Downlink-Simulator EVERYTHING: 866474656D7064707265736367707364646174656474696D656368756D
 // Downlink-Simulator TEMP & HUM: 826474656D706368756D   
@@ -103,27 +110,31 @@ static void *_periodic_send(void *arg){
         cbor_encoder_init(&encoder, buf, sizeof(buf), 0);
         cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 
+        struct atmospheric_data atmo_dat = {0};
+        accessAtmosphericData(&atmo_dat);
+
         // Temperature
-        saul_reg_read(devTemp, &res);
+        // saul_reg_read(devTemp, &res);
+        res = atmo_dat.temperature;
         addFloatToMap("temp", ((float) res.val[0]) / 100.0, &mapEncoder);
         //cbor_encoder_close_container_checked(&encoder, &mapEncoder);
 
-        // Air Pressure
         addUInt64ToMap("pres", (uint64_t)bmx280_read_pressure((bmx280_t*)(devHum->dev)), &mapEncoder);
         //cbor_encoder_close_container_checked(&encoder, &mapEncoder);
 
         // Humidity
-        saul_reg_read(devHum, &res);
+        // saul_reg_read(devHum, &res);
+        res = atmo_dat.humidity;
         addFloatToMap("hum", ((float) res.val[0]) / 100.0, &mapEncoder);
         //cbor_encoder_close_container_checked(&encoder, &mapEncoder);
     
-        gps_data = getGPSData();
+        // gps_data = getGPSData();
+        accessGPSData(&gps_data);
         addFloatToMap("long", gps_data.gps.lng, &mapEncoder);
         addFloatToMap("lat", gps_data.gps.lat, &mapEncoder);
         addFloatToMap("vel", gps_data.gps.vel, &mapEncoder);
-        
-        addUInt64ToMap("d", gps_data.date.d, &mapEncoder);
-        addUInt64ToMap("m", gps_data.date.m, &mapEncoder);
+        setLEDColor(0, RED);
+        //return 1;
         addUInt64ToMap("y", gps_data.date.y, &mapEncoder);
 
         addUInt64ToMap("hour", gps_data.time.hour, &mapEncoder);
@@ -142,15 +153,12 @@ static void *_periodic_send(void *arg){
                 printf("Message send\n");
             }
         }
-
-        setLEDColor(0, BLUE);
         xtimer_msleep(100);
         if (join_procedure_succeeded) {
             setLEDColor(0, GREEN);
         } else {
             setLEDColor(0, RED);
         }
-
         xtimer_sleep(10);
     }
     return NULL;
@@ -178,10 +186,17 @@ int debug_toggle(int argc, char **argv)
             DEBUG_LORA = true;
         }
         printf("\n");
-    } else {
-        printf("Debug toggle: debug target does not exist\n");
+    } else if (strcmp(argv[1], "access") == 0) {
+        printf("Debug toggle: access => ");
+        if (DEBUG_ACCESS) {
+            printf("false");
+            DEBUG_LORA = false;
+        } else {
+            printf("true");
+            DEBUG_LORA = true;
+        }
+        printf("\n");
     }
-
     return 0;
 }
 
@@ -220,10 +235,13 @@ int main(void)
 
 
     // INIT GPS
-    kernel_pid_t lora_tid = thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _periodic_send, NULL, "Send Thread");
-    //thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _periodic_send, NULL, "Send Thread");
-    initGPSData(lora_tid);
+    // kernel_pid_t lora_tid = thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _periodic_send, NULL, "Send Thread");
+    // initGPSData(lora_tid);
+    thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _periodic_send, NULL, "Send Thread");
     
+    // thread_create(_height_control_stack, sizeof(_height_control_stack), THREAD_PRIORITY_MAIN - 1, 0, heightControLoop, NULL, "Height Control Loop");
+    initializeDataAccess(20000000);
+
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
     return 0;
 }

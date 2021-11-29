@@ -22,12 +22,17 @@ static void rx_cb(void *uart, uint8_t c);
 struct gps_data getGPSData(void) {
     msg_t msg;
     char buff[100] = {0};
-    char sentences[4][100] = {0}; // {{rmc}, {gll}, {vtg}, {gsv}}
+    //char sentences[4][100] = {0}; // {{rmc}, {gll}, {vtg}, {gsv}}
+    char sentences[5][100] = {0}; // {{rmc}, {gll}, {vtg}, {gsv}, {gga}}
     int i = 0;
-    bool lock[5] = {true, true, true, true, true}; // {rmc, gll, vtg, gsv, gsa}
+    //bool lock[5] = {true, true, true, true, true}; // {rmc, gll, vtg, gsv, gsa}
+    bool lock[6] = {true, true, true, true, true, true}; // {rmc, gll, vtg, gsv, gsa, gga}
 
-    while (lock[0] || lock[1] || lock[2] || lock[3]) {
+    //while (lock[0] || lock[1] || lock[2] || lock[3]) {
+    while (lock[0] || lock[1] || lock[2] || lock[3] || lock[5]) {
+        //puts("TEST1\n");
         msg_receive(&msg);
+        //puts("TEST2\n");
         
         if ((((char)msg.content.value) == '$')) {
             if (strstr(buff, strTypes[rmc])) {
@@ -58,6 +63,12 @@ struct gps_data getGPSData(void) {
                 buff[i] = '\0';
                 if (DEBUG_GPS) printf("NMEA: %s", buff);
                 lock[4] = false;
+            }
+            else if (strstr(buff, strTypes[gga])) {
+                buff[i] = '\0';
+                if (DEBUG_GPS) printf("NMEA: %s", buff);
+                memcpy(sentences[4], buff, 100);
+                lock[5] = false;
             }
             memset(buff, 0, 100);
             i = 0;
@@ -98,6 +109,10 @@ struct gps_data getGPSData(void) {
         setLEDColor(1, RED);
     }
 
+    struct minmea_sentence_gga sgga;
+    minmea_parse_gga(&sgga, sentences[4]); // gga sentence
+    data.gps.hei = minmea_tofloat(&sgga.altitude); //Antenna Altitude above/below mean-sea-level (geoid) (in meters)
+
     /* printf("NMEA: %s \n", sentences[0]);
     printf("NMEA: %s \n", sentences[1]);
     printf("NMEA: %s \n", sentences[2]); */
@@ -106,8 +121,10 @@ struct gps_data getGPSData(void) {
         data.date.d, data.date.m, data.date.y);
         printf("Time: hour: %d, min: %d, sec: %d, mircosec: %d\n", 
         data.time.hour, data.time.min, data.time.sec, data.time.mic);
-        printf("GPS: long: %f, lat: %f, speed %f\n", 
-        data.gps.lng, data.gps.lat, data.gps.vel);
+        //printf("GPS: long: %f, lat: %f, speed %f\n", 
+        //data.gps.lng, data.gps.lat, data.gps.vel);
+        printf("GPS: long: %f, lat: %f, speed %f, height %f\n",
+        data.gps.lng, data.gps.lat, data.gps.vel, data.gps.hei);
         printf("\n\n");
     }
 
