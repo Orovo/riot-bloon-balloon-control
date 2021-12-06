@@ -257,8 +257,8 @@ int main(void)
     thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _test_thread, NULL, "Test Thread");
     
     // thread_create(_height_control_stack, sizeof(_height_control_stack), THREAD_PRIORITY_MAIN - 1, 0, heightControLoop, NULL, "Height Control Loop");
-    // hightest recordes windspeed 408km/h | using 450km/h = 125 m/s | therefore movement of 1m takes 0.008s = 8000 microseconds | is this even usefull?
-    initializeDataAccess(8000);
+    // hightest recordes windspeed 408km/h | using 450km/h = 125 m/s | accuracy of gps ~5m | therefore movement by 5m takes 0.04s = 40000 microseconds | is this even usefull?
+    initializeDataAccess(40000);
 
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
     return 0;
