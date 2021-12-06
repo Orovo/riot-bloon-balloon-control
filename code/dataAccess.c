@@ -15,14 +15,15 @@ static mutex_t refreshData_lock = MUTEX_INIT;
 static mutex_t dataAccess_thread_lock = MUTEX_INIT_LOCKED;
 static mutex_t dataAccess_accessor_lock = MUTEX_INIT_LOCKED;
 
-// -1 - unidentified
-//  0 - all data
-//  1 - gps_data
-//  2 - all_atmospheric_data
-//  3 - humidity
-//  4 - temperature
-//  5 - air pressure
-static datatypes dataIdentifier = -1;
+enum DATATYPE {
+    unidentified,
+    all_data, 
+        gps_data,
+        all_atmospheric_data,
+            humidity, temperature, pressure
+};
+
+static enum DATATYPE dataIdentifier = unidentified;
 
 void initializeDataAccess(unsigned int microseconds) {
     data_refresh_rate_ms = microseconds;
@@ -40,18 +41,18 @@ void *dataAccessThread(void *arg) {
 
         //gather data - choose data to extract
         switch(dataIdentifier) {
-            case 0:
-            case 1:
+            case all_data:
+            case gps_data:
                 getGPSData(&total_data_access.gps);
-                if(dataIdentifier == 1) break;
-            case 2:
-            case 3:
+                if(dataIdentifier == gps_data) break;
+            case all_atmospheric_data:
+            case humidity:
                 saul_reg_read(devHum, &total_data_access.atmospheric.humidity);
-                if(dataIdentifier == 3) break;
-            case 4:
+                if(dataIdentifier == humidity) break;
+            case temperature:
                 saul_reg_read(devTemp, &total_data_access.atmospheric.temperature);
-                if(dataIdentifier == 4) break;
-            case 5:
+                if(dataIdentifier == temperature) break;
+            case pressure:
                 saul_reg_read(devPres, &total_data_access.atmospheric.pressure);
                 break;
             default:
@@ -60,7 +61,7 @@ void *dataAccessThread(void *arg) {
         }
 
         // reset dataIdentifier
-        dataIdentifier = -1;
+        dataIdentifier = unidentified;
         
         mutex_unlock(&dataAccess_accessor_lock);
         //thread_sleep();
@@ -83,7 +84,7 @@ void refreshData(void) {
 int accessGPSData(struct gps_data *other) {
     if(other == NULL) return 1; //not fine
     mutex_lock(&accessData_lock);
-    dataIdentifier = 1;
+    dataIdentifier = gps_data;
     refreshData();
     memcpy(other, &total_data_access.gps, sizeof(struct gps_data));
     mutex_unlock(&accessData_lock);
@@ -93,7 +94,7 @@ int accessGPSData(struct gps_data *other) {
 int accessAtmosphericData(struct atmospheric_data *other) {
     if(other == NULL) return 1; //not fine
     mutex_lock(&accessData_lock);
-    dataIdentifier = 2;
+    dataIdentifier = all_atmospheric_data;
     refreshData();
     memcpy(other, &total_data_access.atmospheric, sizeof(struct atmospheric_data));
     mutex_unlock(&accessData_lock);
@@ -103,7 +104,7 @@ int accessAtmosphericData(struct atmospheric_data *other) {
 int accessTotalData(struct access_data *other) {
     if(other == NULL) return 1; //not fine
     mutex_lock(&accessData_lock);
-    dataIdentifier = 0;
+    dataIdentifier = all_data;
     refreshData();
     memcpy(other, &total_data_access, sizeof(struct access_data));
     mutex_unlock(&accessData_lock);
@@ -113,7 +114,7 @@ int accessTotalData(struct access_data *other) {
 int accessHumidityData(phydat_t *other) {
     if(other == NULL) return 1; //not fine
     mutex_lock(&accessData_lock);
-    dataIdentifier = 3;
+    dataIdentifier = humidity;
     refreshData();
     memcpy(other, &total_data_access.atmospheric.humidity, sizeof(phydat_t));
     mutex_unlock(&accessData_lock);
@@ -123,7 +124,7 @@ int accessHumidityData(phydat_t *other) {
 int accessTemperatureData(phydat_t *other) {
     if(other == NULL) return 1; //not fine
     mutex_lock(&accessData_lock);
-    dataIdentifier = 4;
+    dataIdentifier = temperature;
     refreshData();
     memcpy(other, &total_data_access.atmospheric.temperature, sizeof(phydat_t));
     mutex_unlock(&accessData_lock);
@@ -133,7 +134,7 @@ int accessTemperatureData(phydat_t *other) {
 int accessPressureData(phydat_t *other) {
     if(other == NULL) return 1; //not fine
     mutex_lock(&accessData_lock);
-    dataIdentifier = 5;
+    dataIdentifier = pressure;
     refreshData();
     memcpy(other, &total_data_access.atmospheric.pressure, sizeof(phydat_t));
     mutex_unlock(&accessData_lock);
