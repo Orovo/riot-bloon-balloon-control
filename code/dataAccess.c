@@ -2,9 +2,8 @@
 
 struct access_data total_data_access = {0};
 
-
 unsigned int last_access_time = 0;
-unsigned int data_refresh_rate_ms;
+unsigned int data_refresh_rate_ms = 0;
 
 kernel_pid_t data_access_thread = NULL;
 
@@ -64,7 +63,6 @@ void *dataAccessThread(void *arg) {
         dataIdentifier = unidentified;
         
         mutex_unlock(&dataAccess_accessor_lock);
-        //thread_sleep();
     }
 }
 
@@ -74,7 +72,6 @@ void refreshData(void) {
     if(last_access_time == 0 || (current_time >= (last_access_time + data_refresh_rate_ms))) {
         //not set or to old - refresh
         last_access_time = current_time;
-        //thread_wakeup(data_access_thread);
         mutex_unlock(&dataAccess_thread_lock);
         mutex_lock(&dataAccess_accessor_lock); //pausing thread until dataAccesThread has collected all the data
     }
