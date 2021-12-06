@@ -7,6 +7,7 @@
 #include "xtimer.h"
 
 #include "gps_data.h"
+#include ""
 
 float targetHeight = 0; //meters over mean sea level
 bool adjustHeight = true;
@@ -36,13 +37,13 @@ int toggleHeightControl(int argc, char **argv) {
 void *heightControlLoop(void *arg) {
     while(true) {
         if(adjustHeight) {
-            puts("\nHeight Controll\n");
             //height controll enabled
             //get current position (gps data)
             //specify relative height
             //operate valves
             //wait
-            struct gps_data data = getGPSData();
+            struct gps_data data = {0}
+            accessGPSData(&data);
             printf("lng: %f, lat: %f, vel: %f, hei: %f\n", data.gps.lng, data.gps.lat, data.gps.vel, data.gps.hei);
         }
         else {
