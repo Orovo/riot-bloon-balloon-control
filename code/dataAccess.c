@@ -17,12 +17,12 @@ static mutex_t dataAccess_accessor_lock = MUTEX_INIT_LOCKED;
 
 // -1 - unidentified
 //  0 - all data
-//  1 - gps-data
-//  2 - all atmospheric data
-//  3 - humitdiy
+//  1 - gps_data
+//  2 - all_atmospheric_data
+//  3 - humidity
 //  4 - temperature
-//  5 - air presssure
-static int dataIdentifier = -1;
+//  5 - air pressure
+static datatypes dataIdentifier = -1;
 
 void initializeDataAccess(unsigned int microseconds) {
     data_refresh_rate_ms = microseconds;
@@ -106,6 +106,36 @@ int accessTotalData(struct access_data *other) {
     dataIdentifier = 0;
     refreshData();
     memcpy(other, &total_data_access, sizeof(struct access_data));
+    mutex_unlock(&accessData_lock);
+    return 0; //everything fine
+}
+
+int accessHumidityData(phydat_t *other) {
+    if(other == NULL) return 1; //not fine
+    mutex_lock(&accessData_lock);
+    dataIdentifier = 3;
+    refreshData();
+    memcpy(other, &total_data_access.atmospheric.humidity, sizeof(phydat_t));
+    mutex_unlock(&accessData_lock);
+    return 0; //everything fine
+}
+
+int accessTemperatureData(phydat_t *other) {
+    if(other == NULL) return 1; //not fine
+    mutex_lock(&accessData_lock);
+    dataIdentifier = 4;
+    refreshData();
+    memcpy(other, &total_data_access.atmospheric.temperature, sizeof(phydat_t));
+    mutex_unlock(&accessData_lock);
+    return 0; //everything fine
+}
+
+int accessPressureData(phydat_t *other) {
+    if(other == NULL) return 1; //not fine
+    mutex_lock(&accessData_lock);
+    dataIdentifier = 5;
+    refreshData();
+    memcpy(other, &total_data_access.atmospheric.pressure, sizeof(phydat_t));
     mutex_unlock(&accessData_lock);
     return 0; //everything fine
 }
