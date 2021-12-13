@@ -34,7 +34,7 @@ USEMODULE += semtech_loramac_rx
 USEMODULE += tinycbor_float
 USEMODULE += xtimer
 
-#USEMODULE += periph_uart
+USEMODULE += periph_uart
 
 USEPKG += semtech-loramac
 USEPKG += tinycbor
@@ -52,7 +52,7 @@ CFLAGS += -DBMX280_PARAM_I2C_ADDR=0x76
 
 LORA_REGION = EU868
 
-# USEMODULE += esp_wifi
+# USEMODULE += esp_wifi #TODO
 
 WIFI_SSID ?= "ssid"
 WIFI_PASS ?= "password"
