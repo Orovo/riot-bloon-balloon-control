@@ -34,6 +34,9 @@ struct access_data {
 int accessGPSData(struct gps_data *other);
 int accessAtmosphericData(struct atmospheric_data *other);
 int accessTotalData(struct access_data *other);
+int accessHumidityData(phydat_t *other);
+int accessTemperatureData(phydat_t *other);
+int accessPressureData(phydat_t *other);
 
 void initializeDataAccess(unsigned int microseconds);
 
