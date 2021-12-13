@@ -37,6 +37,4 @@ int accessTotalData(struct access_data *other);
 
 void initializeDataAccess(unsigned int microseconds);
 
-void *dataAccessThread(void *arg);
-
 #endif

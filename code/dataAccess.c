@@ -24,12 +24,6 @@ enum DATATYPE {
 
 static enum DATATYPE dataIdentifier = unidentified;
 
-void initializeDataAccess(unsigned int microseconds) {
-    data_refresh_rate_ms = microseconds;
-    data_access_thread = thread_create(_data_access_stack, sizeof(_data_access_stack), THREAD_PRIORITY_MAIN - 1, 0, dataAccessThread, NULL, "Data_Access Thread");
-    initGPSData(data_access_thread);
-}
-
 void *dataAccessThread(void *arg) {
     saul_reg_t *devHum = saul_reg_find_type(SAUL_SENSE_HUM);
     saul_reg_t *devTemp = saul_reg_find_type(SAUL_SENSE_TEMP);
@@ -64,6 +58,12 @@ void *dataAccessThread(void *arg) {
         
         mutex_unlock(&dataAccess_accessor_lock);
     }
+}
+
+void initializeDataAccess(unsigned int microseconds) {
+    data_refresh_rate_ms = microseconds;
+    data_access_thread = thread_create(_data_access_stack, sizeof(_data_access_stack), THREAD_PRIORITY_MAIN - 1, 0, dataAccessThread, NULL, "Data_Access Thread");
+    initGPSData(data_access_thread);
 }
 
 void refreshData(void) {
