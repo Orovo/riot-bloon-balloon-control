@@ -44,6 +44,7 @@
 bool DEBUG_GPS = true;
 bool DEBUG_LORA = false;
 bool DEBUG_ACCESS = false;
+bool DEBUG_HEIGHT_CONTROL = true;
 
 static msg_t _main_msg_queue[MAIN_QUEUE_SIZE];
 
@@ -196,6 +197,16 @@ int debug_toggle(int argc, char **argv)
             DEBUG_LORA = true;
         }
         printf("\n");
+    } else if (strcmp(argv[1], "height_control") == 0) {
+        printf("Debug toggle: height_control => ");
+        if (DEBUG_HEIGHT_CONTROL) {
+            printf("false");
+            DEBUG_HEIGHT_CONTROL = false;
+        } else {
+            printf("true");
+            DEBUG_HEIGHT_CONTROL = true;
+        }
+        printf("\n");
     }
     return 0;
 }
@@ -259,6 +270,7 @@ int main(void)
     // thread_create(_height_control_stack, sizeof(_height_control_stack), THREAD_PRIORITY_MAIN - 1, 0, heightControLoop, NULL, "Height Control Loop");
     // hightest recordes windspeed 408km/h | using 450km/h = 125 m/s | accuracy of gps ~5m | therefore movement by 5m takes 0.04s = 40000 microseconds | is this even usefull?
     initializeDataAccess(40000);
+    initializeHeightControl(100, 10000000);
 
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
     return 0;
