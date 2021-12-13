@@ -1,5 +1,3 @@
 add gcoap to access 'all data'
 add gcoap to set 'target height'
-implement & start heightControlLoop
-    create initialize method like in data access for heightControlLoop
-    call init method from main
+implement heightControlLoop
