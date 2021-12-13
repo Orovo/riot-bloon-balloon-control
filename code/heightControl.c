@@ -22,7 +22,6 @@ int setTargetHeight(int argc, char **argv) {
     return 0;
 }
 
-
 int toggleHeightControl(int argc, char **argv) {
     if(argc > 0) {
         long temp = strtol(argv[0], NULL, 8);
@@ -52,7 +51,7 @@ void *heightControlThread(void *arg) {
             if(DEBUG_HEIGHT_CONTROL) puts("\nNo Height Controll\n");
             //height controll disabled
         }
-        xtimer_sleep(10);
+        xtimer_sleep(_refresh_rate_ms);
     }
     return NULL;
 }
