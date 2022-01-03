@@ -139,7 +139,7 @@ static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, voi
     if (pdu->payload_len <= 5) {
         char payload[6] = { 0 };
         memcpy(payload, (char *)pdu->payload, pdu->payload_len);
-        valve_open_time = (uint16_t)strtoul(payload, NULL, 10);
+        uint16_t valve_open_time = (uint16_t)strtoul(payload, NULL, 10);
 
         gpio_set(VALVE_DOWN_PIN);
         wakeUpValveControlFor(valve_open_time);
@@ -168,7 +168,7 @@ static ssize_t valve_up_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void 
     if (pdu->payload_len <= 5) {
         char payload[6] = { 0 };
         memcpy(payload, (char *)pdu->payload, pdu->payload_len);
-        valve_open_time = (uint16_t)strtoul(payload, NULL, 10);
+        uint16_t valve_open_time = (uint16_t)strtoul(payload, NULL, 10);
 
         gpio_set(VALVE_UP_PIN);
         wakeUpValveControlFor(valve_open_time);

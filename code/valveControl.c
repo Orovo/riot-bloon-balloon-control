@@ -7,14 +7,14 @@ static kernel_pid_t _valve_thread_pid = KERNEL_PID_UNDEF;
 static char _valve_thread_stack[THREAD_STACKSIZE_SMALL];
 
 
-int wakeUpValveControl(uint16_t valve_open_time) {
+int wakeUpValveControlFor(uint16_t valve_open_time) {
     if(pid_is_valid(_valve_thread_pid)) return 1;
     _valve_open_time = valve_open_time;
     thread_wakeup(_valve_thread_pid);
     return 0;
 }
 
-static void *valveControlThreadFor(void *arg){
+static void *valveControlThread(void *arg){
     (void)arg;
     while(1){
         thread_sleep();
