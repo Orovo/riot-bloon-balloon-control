@@ -142,7 +142,8 @@ int getGPSData(struct gps_data *returnStruct) {
 void initGPSData(kernel_pid_t lora_tid) {
     rcv_tid = lora_tid;
     uart_init(DEV, BAUDRATE, rx_cb, (void*)DEV);
-    const uint8_t command[] = "$PMTK225,0";
+    //const uint8_t command[] = "$PMTK225,0";
+    const uint8_t command[] = "$PMTK353,1,1,1,0,0*2A";
     uart_write(DEV, command, sizeof(command));
     //const uint8_t command[] = "$PMTK225,9*22";
     /* const uint8_t command[] = "$PMTK161,0*28";
