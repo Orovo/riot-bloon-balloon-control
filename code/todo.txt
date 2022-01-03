@@ -1,6 +1,5 @@
 add gcoap to access 'all data'
 add gcoap to set 'target height'
-implement heightControlLoop
 
 coap blob transfer für größere datenmengen
     coap recource für kamtera oä

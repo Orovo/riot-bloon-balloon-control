@@ -37,20 +37,34 @@ int toggleHeightControl(int argc, char **argv) {
 
 void *heightControlThread(void *arg) {
     while(true) {
-        if(_adjustHeight) {
+        if(_adjustHeight && _refresh_rate_ms > 0) {
             //height controll enabled
             //get current position (gps data)
-            //specify relative height
-            //operate valves
-            //wait
             struct gps_data data = {0};
             accessGPSData(&data);
             if(DEBUG_HEIGHT_CONTROL) printf("lng: %f, lat: %f, vel: %f, hei: %f\n", data.gps.lng, data.gps.lat, data.gps.vel, data.gps.hei);
+            //specify relative height : totalHeight-targetHeight
+            float relativeHeight = data.gps.hei - _targetHeight;
+            //operate valves
+            if(relativeHeight < 0) {
+                //move up
+                gpio_set(VALVE_UP_PIN);
+                wakeUpValveControlFor(_refresh_rate_ms / 2);
+            }
+            else if(relativeHeight > 0) {
+                //move down
+                gpio_set(VALVE_DOWN_PIN);
+                wakeUpValveControlFor(_refresh_rate_ms / 2);
+            }
+            else {
+                //stay
+            }
         }
         else {
-            if(DEBUG_HEIGHT_CONTROL) puts("\nNo Height Controll\n");
             //height controll disabled
+            if(DEBUG_HEIGHT_CONTROL) puts("\nNo Height Controll\n");
         }
+        //wait
         xtimer_sleep(_refresh_rate_ms);
     }
     return NULL;
