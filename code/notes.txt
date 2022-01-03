@@ -14,9 +14,20 @@ BUILD_IN_DOCKER=1 BOARD=mini-loon make flash term
 
 https://www.hackster.io/386121/miniloon-60a9c9
 
-debug gps 1
+debug gps
+
+aiocoap-client -m GET coap://[fe80::860d:8eff:fe1d:ee8%wlan0]/.well-known/core
+
+With WLAN
+coap put fe80::860d:8eff:fe1d:ee8 5683 /actu/valvedown 1000
+aiocoap-client -m PUT coap://[fe80::860d:8eff:fe1d:ee8%wlan0]/actu/valvedown --payload 1000
+coap put fe80::860d:8eff:fe1d:ee8 5683 /actu/valveup 1000
+aiocoap-client -m PUT coap://[fe80::860d:8eff:fe1d:ee8%wlan0]/actu/valveup --payload 1000
+
+Without WLAN
 coap put fe80::860d:8eff:fe1d:ee9 5683 /actu/valvedown 1000
 coap put fe80::860d:8eff:fe1d:ee9 5683 /actu/valveup 1000
+
 
 coap get fe80::860d:8eff:fe1d:ee9 5683 /sens/temp
 
