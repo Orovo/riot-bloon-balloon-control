@@ -132,17 +132,17 @@ static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, voi
     } else {
         setLEDColor(0, RED);
     }
-    if ( gpio_read(GPIO_PIN(0,2)) || gpio_read(GPIO_PIN(0,4)) ){
+    if ( gpio_read(VALVE_DOWN_PIN) || gpio_read(VALVE_UP_PIN) ){
         return gcoap_response(pdu, buf, len, COAP_CODE_CONFLICT);
     }
 
     if (pdu->payload_len <= 5) {
         char payload[6] = { 0 };
         memcpy(payload, (char *)pdu->payload, pdu->payload_len);
-        setValveOpenTime((uint16_t)strtoul(payload, NULL, 10));
+        valve_open_time = (uint16_t)strtoul(payload, NULL, 10);
 
-        gpio_set(GPIO_PIN(0,2));
-        wakeUpValveControl();
+        gpio_set(VALVE_DOWN_PIN);
+        wakeUpValveControlFor(valve_open_time);
 
         return gcoap_response(pdu, buf, len, COAP_CODE_CHANGED);
     }
@@ -168,10 +168,10 @@ static ssize_t valve_up_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void 
     if (pdu->payload_len <= 5) {
         char payload[6] = { 0 };
         memcpy(payload, (char *)pdu->payload, pdu->payload_len);
-        setValveOpenTime((uint16_t)strtoul(payload, NULL, 10));
+        valve_open_time = (uint16_t)strtoul(payload, NULL, 10);
 
-        gpio_set(GPIO_PIN(0,4));
-        wakeUpValveControl();
+        gpio_set(VALVE_UP_PIN);
+        wakeUpValveControlFor(valve_open_time);
 
         return gcoap_response(pdu, buf, len, COAP_CODE_CHANGED);
     }

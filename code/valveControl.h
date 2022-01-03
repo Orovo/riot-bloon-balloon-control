@@ -14,9 +14,11 @@
 #include "periph/gpio.h"
 #include "xtimer.h"
 
-int setValveOpenTime(uint16_t valve_open_time);
+#define VALVE_UP_PIN GPIO_PIN(0,4)
+#define VALVE_DOWN_PIN GPIO_PIN(0,2)
 
-int wakeUpValveControl(void);
+
+int wakeUpValveControlFor(uint16_t valve_open_time);
 
 void initializeValveControl(void);
 

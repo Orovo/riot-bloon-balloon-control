@@ -6,26 +6,21 @@ static kernel_pid_t _valve_thread_pid = KERNEL_PID_UNDEF;
 
 static char _valve_thread_stack[THREAD_STACKSIZE_SMALL];
 
-int setValveOpenTime(uint16_t valve_open_time) {
-    _valve_open_time = valve_open_time;
-    return 0;
-}
 
-int wakeUpValveControl(void) {
+int wakeUpValveControl(uint16_t valve_open_time) {
     if(pid_is_valid(_valve_thread_pid)) return 1;
+    _valve_open_time = valve_open_time;
     thread_wakeup(_valve_thread_pid);
     return 0;
 }
 
-static void *valveControlThread(void *arg){
+static void *valveControlThreadFor(void *arg){
     (void)arg;
     while(1){
         thread_sleep();
         xtimer_msleep(_valve_open_time);
-        printf("unset pint 0,2");
-        gpio_clear(GPIO_PIN(0,2));
-        printf("unset pint 0,4");
-        gpio_clear(GPIO_PIN(0,4));
+        gpio_clear(VALVE_DOWN_PIN);
+        gpio_clear(VALVE_UP_PIN);
     }
     return NULL;
 }
