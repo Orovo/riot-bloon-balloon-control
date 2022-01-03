@@ -18,7 +18,7 @@
 #define VALVE_DOWN_PIN GPIO_PIN(0,2)
 
 
-int wakeUpValveControlFor(uint16_t valve_open_time);
+void wakeUpValveControlFor(uint16_t valve_open_time);
 
 void initializeValveControl(void);
 
