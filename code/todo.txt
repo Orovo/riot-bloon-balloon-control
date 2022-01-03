@@ -1,3 +1,11 @@
 add gcoap to access 'all data'
 add gcoap to set 'target height'
 implement heightControlLoop
+
+coap blob transfer für größere datenmengen
+    coap recource für kamtera oä
+cup id für id von ballon
+    get funkton /gcoap für ID
+
+rfc7252 - coap queries - details in coap anfrage
+    probiere spezifische gps daten zu extrahieren - nur position/time/date
