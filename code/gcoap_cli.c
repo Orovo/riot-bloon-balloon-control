@@ -74,7 +74,7 @@ static const coap_resource_t _resources[] = {
 };
 
 static const char *_link_params[] = {
-    ";ct=0;rt=\"count\";obs",
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -101,7 +101,6 @@ static char _last_req_path[_LAST_REQ_PATH_MAX];
 /* Counts requests sent by CLI. */
 static uint16_t req_count = 0;
 
-extern struct gps_data gps_data;
 extern bool join_procedure_succeeded;
 
 /* Adds link format params to resource list */
@@ -195,12 +194,14 @@ static ssize_t _gps_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
     cbor_encoder_init(&encoder, buffer, sizeof(buffer), 0);
     cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 
-    // struct gps_data gps_data = {0};
-    // gps_data = getGPSData();
+    struct gps_data gps_data = {0};
+    accessGPSData(&gps_data);
+
 
     addFloatToMap("long", gps_data.gps.lng, &mapEncoder);
     addFloatToMap("lat", gps_data.gps.lat, &mapEncoder);
     addFloatToMap("vel", gps_data.gps.vel, &mapEncoder);
+    addFloatToMap("hei", gps_data.gps.hei, &mapEncoder);
     
     addUInt64ToMap("d", gps_data.date.d, &mapEncoder);
     addUInt64ToMap("m", gps_data.date.m, &mapEncoder);
