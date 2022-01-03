@@ -37,6 +37,7 @@
 #include "led.h"
 
 #include "dataAccess.h"
+#include "valveControl.h"
 
 #define ENABLE_DEBUG (0)
 #include "debug.h"
@@ -57,11 +58,6 @@ static ssize_t temp_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
 static ssize_t hum_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
 static ssize_t press_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
 static ssize_t _gps_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
-
-static void *_close_valve(void *arg);
-static char _valve_handler_stack[THREAD_STACKSIZE_SMALL];
-
-kernel_pid_t valve_thread_pid;
 
 uint8_t test;
 
@@ -105,8 +101,6 @@ static char _last_req_path[_LAST_REQ_PATH_MAX];
 /* Counts requests sent by CLI. */
 static uint16_t req_count = 0;
 
-static uint16_t valve_open_time = 0;
-
 extern struct gps_data gps_data;
 extern bool join_procedure_succeeded;
 
@@ -128,18 +122,6 @@ static ssize_t _encode_link(const coap_resource_t *resource, char *buf,
     return res;
 }
 
-static void *_close_valve(void *arg){
-    (void)arg;
-    while(1){
-        thread_sleep();
-        xtimer_msleep(valve_open_time);
-        gpio_clear(GPIO_PIN(0,2));
-        gpio_clear(GPIO_PIN(0,4));
-        //printf("Warten Ende: %d\n", valve_open_time);
-    }
-    return NULL;
-}
-
 static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
 {
     (void)ctx;
@@ -157,10 +139,10 @@ static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, voi
     if (pdu->payload_len <= 5) {
         char payload[6] = { 0 };
         memcpy(payload, (char *)pdu->payload, pdu->payload_len);
-        valve_open_time = (uint16_t)strtoul(payload, NULL, 10);
+        setValveOpenTime((uint16_t)strtoul(payload, NULL, 10));
 
         gpio_set(GPIO_PIN(0,2));
-        thread_wakeup(valve_thread_pid);
+        wakeUpValveControl();
 
         return gcoap_response(pdu, buf, len, COAP_CODE_CHANGED);
     }
@@ -186,10 +168,10 @@ static ssize_t valve_up_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void 
     if (pdu->payload_len <= 5) {
         char payload[6] = { 0 };
         memcpy(payload, (char *)pdu->payload, pdu->payload_len);
-        valve_open_time = (uint16_t)strtoul(payload, NULL, 10);
+        setValveOpenTime((uint16_t)strtoul(payload, NULL, 10));
 
         gpio_set(GPIO_PIN(0,4));
-        thread_wakeup(valve_thread_pid);
+        wakeUpValveControl();
 
         return gcoap_response(pdu, buf, len, COAP_CODE_CHANGED);
     }
@@ -729,6 +711,6 @@ int gcoap_cli_cmd(int argc, char **argv)
 
 void gcoap_cli_init(void)
 {
-    valve_thread_pid = thread_create(_valve_handler_stack, sizeof(_valve_handler_stack), THREAD_PRIORITY_MAIN - 1, 0, _close_valve, NULL, "Valve Handler");
+    initializeValveControl();
     gcoap_register_listener(&_listener);
 }
