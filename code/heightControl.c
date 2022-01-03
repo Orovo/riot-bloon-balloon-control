@@ -7,6 +7,7 @@
 
 #include "gps_data.h"
 #include "dataAccess.h"
+#include "valveControl.h"
 
 float _targetHeight = 0; //meters over mean sea level
 bool _adjustHeight = true;
