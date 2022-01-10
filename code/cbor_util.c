@@ -29,11 +29,6 @@ void addDoubleToMap(char* key, double value, CborEncoder* mapEncoder) {
     cbor_encode_double(mapEncoder, value);
 }
 
-void addCharArrayToMap(char* key, char* value, int arrayLength, CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, key);
-    cbor_encode_text_string(mapEncoder, value, arrayLength);
-}
-
 void addInt64ToMap(char* key, int64_t value, CborEncoder* mapEncoder) {
     cbor_encode_text_stringz(mapEncoder, key);
     cbor_encode_int(mapEncoder, value);
