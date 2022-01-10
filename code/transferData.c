@@ -26,11 +26,11 @@ void addPersonToBuffer(person_t *person) {
 }
 
 //To cbor conversion functions
-void personToCbor(person_t *sourcePerson, uint8_t *destination) {
-    uint8_t buffer[128] = {0};
+void personToCbor(person_t *sourcePerson, uint8_t *destination, int destination_size, uint8_t *sizeOfCbor) {
+    //TODO check destination_size for size - error if to large
     CborEncoder encoder;
     CborEncoder mapEncoder;
-    cbor_encoder_init(&encoder, buffer, sizeof(buffer), 0);
+    cbor_encoder_init(&encoder, destination, destination_size, 0);
     cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 
     addStringToMap("id", sourcePerson->id, &mapEncoder);
@@ -40,9 +40,9 @@ void personToCbor(person_t *sourcePerson, uint8_t *destination) {
     addUInt64ToMap("timestamp", sourcePerson->timestamp, &mapEncoder);
 
     cbor_encoder_close_container_checked(&encoder, &mapEncoder);
-    uint8_t buffer_size = cbor_encoder_get_buffer_size(&encoder, buffer);
+    uint8_t buffer_size = cbor_encoder_get_buffer_size(&encoder, destination);
 
-    memcpy(destination, buffer, buffer_size);
+    *sizeOfCbor = buffer_size;
 }
 
 //From cbor conversion functions
