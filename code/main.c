@@ -32,6 +32,7 @@
 
 #include "heightControl.h"
 #include "dataAccess.h"
+#include "transferData.h"
 
 #include "gps_data.h"
 #include "periph/uart.h"
@@ -67,7 +68,7 @@ bool join_procedure_succeeded = false;
 //#define RECV_MSG_QUEUE                   (4U)
 //static msg_t _recv_queue[RECV_MSG_QUEUE];
 //static char _recv_stack[THREAD_STACKSIZE_DEFAULT];
-static char _send_stack[THREAD_STACKSIZE_DEFAULT];
+// static char _test_stack[THREAD_STACKSIZE_DEFAULT];
 // static char _height_control_stack[THREAD_STACKSIZE_DEFAULT];
 
 // Downlink-Simulator EVERYTHING: 866474656D7064707265736367707364646174656474696D656368756D
@@ -89,81 +90,6 @@ void sendMessage(char* message) {
         printf("Message '%s' was send!\n", message);
     }
 }
-
-// static void *_periodic_send(void *arg){
-
-//     //msg_init_queue(_recv_queue, RECV_MSG_QUEUE);
-//     (void)arg;
-    
-//     saul_reg_t *devTemp = saul_reg, *devHum = saul_reg, *devPres = saul_reg; 
-//     uint8_t buf[BUFSIZE] = {0};
-//     phydat_t res;
-//     CborEncoder encoder, mapEncoder;
-
-//     devTemp = saul_reg_find_type(SAUL_SENSE_TEMP);
-//     devHum = saul_reg_find_type(SAUL_SENSE_HUM);
-//     devPres = saul_reg_find_type(SAUL_SENSE_PRESS);
-
-//     //Checks sensors
-//     printf("Sensors present: Temp: %d, Hum: %d, Pres: %d\n", devTemp != NULL, devHum != NULL, devPres != NULL);
-
-//     while (1) {      
-//         cbor_encoder_init(&encoder, buf, sizeof(buf), 0);
-//         cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
-
-//         struct atmospheric_data atmo_dat = {0};
-//         accessAtmosphericData(&atmo_dat);
-
-//         // Temperature
-//         // saul_reg_read(devTemp, &res);
-//         res = atmo_dat.temperature;
-//         addFloatToMap("temp", ((float) res.val[0]) / 100.0, &mapEncoder);
-//         //cbor_encoder_close_container_checked(&encoder, &mapEncoder);
-
-//         addUInt64ToMap("pres", (uint64_t)bmx280_read_pressure((bmx280_t*)(devHum->dev)), &mapEncoder);
-//         //cbor_encoder_close_container_checked(&encoder, &mapEncoder);
-
-//         // Humidity
-//         // saul_reg_read(devHum, &res);
-//         res = atmo_dat.humidity;
-//         addFloatToMap("hum", ((float) res.val[0]) / 100.0, &mapEncoder);
-//         //cbor_encoder_close_container_checked(&encoder, &mapEncoder);
-    
-//         // gps_data = getGPSData();
-//         accessGPSData(&gps_data);
-//         addFloatToMap("long", gps_data.gps.lng, &mapEncoder);
-//         addFloatToMap("lat", gps_data.gps.lat, &mapEncoder);
-//         addFloatToMap("vel", gps_data.gps.vel, &mapEncoder);
-//         setLEDColor(0, RED);
-//         //return 1;
-//         addUInt64ToMap("y", gps_data.date.y, &mapEncoder);
-
-//         addUInt64ToMap("hour", gps_data.time.hour, &mapEncoder);
-//         addUInt64ToMap("min", gps_data.time.min, &mapEncoder);
-//         addUInt64ToMap("sec", gps_data.time.sec, &mapEncoder);
-//         addUInt64ToMap("mic", gps_data.time.mic, &mapEncoder);
-        
-//         cbor_encoder_close_container_checked(&encoder, &mapEncoder);
-
-//         //uint8_t ret = semtech_loramac_send(&loramac, buf, MSG_LENGTH);
-//         uint8_t ret = semtech_loramac_send(&loramac, buf, cbor_encoder_get_buffer_size(&encoder, buf));
-//         if (DEBUG_LORA) {
-//             if (ret != SEMTECH_LORAMAC_TX_DONE) {
-//                 printf("Cannot send message '%s' ->> Return Code: %d\n", buf, ret);
-//             } else {
-//                 printf("Message send\n");
-//             }
-//         }
-//         xtimer_msleep(100);
-//         if (join_procedure_succeeded) {
-//             setLEDColor(0, GREEN);
-//         } else {
-//             setLEDColor(0, RED);
-//         }
-//         xtimer_sleep(10);
-//     }
-//     return NULL;
-// }
 
 int debug_toggle(int argc, char **argv)
 {
@@ -210,7 +136,7 @@ int debug_toggle(int argc, char **argv)
     }
     return 0;
 }
-
+/*
 static void *_test_thread(void *arg){
     puts("Start of Test Thread");
     struct access_data data = {0};
@@ -226,6 +152,16 @@ static void *_test_thread(void *arg){
     }
     return NULL;
 }
+*/
+
+person_t person = {
+    .id = "0123456789ABC",
+    .status = 42,
+    .lat = 47,
+    .lon = 11,
+    .timestamp = 31415
+    };
+    
 
 int main(void)
 {
@@ -265,12 +201,22 @@ int main(void)
     // kernel_pid_t lora_tid = thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _periodic_send, NULL, "Send Thread");
     // initGPSData(lora_tid);
     // thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _periodic_send, NULL, "Send Thread");
-    thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _test_thread, NULL, "Test Thread");
+    //thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _test_thread, NULL, "Test Thread");
     
     // thread_create(_height_control_stack, sizeof(_height_control_stack), THREAD_PRIORITY_MAIN - 1, 0, heightControLoop, NULL, "Height Control Loop");
     // hightest recordes windspeed 408km/h | using 450km/h = 125 m/s | accuracy of gps ~5m | therefore movement by 5m takes 0.04s = 40000 microseconds | is this even usefull?
-    initializeDataAccess(40000);
-    initializeHeightControl(100, 10000000);
+    //initializeDataAccess(40000);
+    //initializeHeightControl(100, 10000000);
+
+    
+    int bufsize = 128;
+    uint8_t buffer[bufsize];
+    uint8_t size;
+    personToCbor(&person, buffer, bufsize, &size);
+    for(int i = 0; i < size; i++) {
+        printf("%02x ", buffer[i]);
+    }
+    printf("\n");
 
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
     return 0;
