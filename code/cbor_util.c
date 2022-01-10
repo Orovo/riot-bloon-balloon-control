@@ -23,3 +23,8 @@ void printHexFromBuffer(uint8_t* buffer, CborEncoder* encoder) {
     }
     printf("\n");
 }
+
+void addDoubleToMap(char* key, double value, CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, key);
+    cbor_encode_double(mapEncoder, value);
+}
