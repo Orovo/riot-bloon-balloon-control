@@ -34,7 +34,6 @@ struct gps_data {
     uint8_t n_satellites;
 };
 
-// struct gps_data getGPSData(void);
 int getGPSData(struct gps_data *returnStruct);
 void initGPSData(kernel_pid_t lora_tid);
 
