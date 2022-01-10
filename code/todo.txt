@@ -8,3 +8,6 @@ cup id für id von ballon
 
 rfc7252 - coap queries - details in coap anfrage
     probiere spezifische gps daten zu extrahieren - nur position/time/date
+
+post / get ID - able to handle blob - prioritize get
+    save last 10 IDs
