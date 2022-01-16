@@ -154,14 +154,13 @@ static void *_test_thread(void *arg){
 }
 */
 
-person_t person = {
+person_t dummyPerson = {
     .id = "0123456789ABC",
     .status = 42,
     .lat = 47,
     .lon = 11,
     .timestamp = 31415
-    };
-    
+};
 
 int main(void)
 {
@@ -208,11 +207,15 @@ int main(void)
     //initializeDataAccess(40000);
     //initializeHeightControl(100, 10000000);
 
+    addPersonToBuffer(&dummyPerson);
     
+    person_t persons[10];
+    getPersonBuffer(&persons);
+
     int bufsize = 128;
     uint8_t buffer[bufsize];
     uint8_t size;
-    personToCbor(&person, buffer, bufsize, &size);
+    personToCbor(&persons[0], buffer, bufsize, &size);
     for(int i = 0; i < size; i++) {
         printf("%02x ", buffer[i]);
     }

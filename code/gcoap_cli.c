@@ -70,10 +70,12 @@ static const coap_resource_t _resources[] = {
     { "/sens/gps", COAP_GET, _gps_handler, NULL},
     { "/sens/hum", COAP_GET , hum_handler, NULL},
     { "/sens/press", COAP_GET , press_handler, NULL},
-    { "/sens/temp", COAP_GET , temp_handler, NULL}
+    { "/sens/temp", COAP_GET , temp_handler, NULL},
+    { "/com/pers", COAP_GET , pers_handler, NULL}
 };
 
 static const char *_link_params[] = {
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -223,6 +225,40 @@ static ssize_t _gps_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
     resp_len += buffer_size;
     printHexFromBuffer(buffer, &encoder);
     return resp_len;   
+}
+
+static ssize_t pers_handler(coap_pkt_t* pdu, uint8_t* buf, size_t len, void* ctx)
+{
+    (void)ctx;
+
+    //get person/s to send
+    person_t* sendPerson = NULL;
+    person_t persons[10];
+    getPersonBuffer(&persons);
+    sendPerson = &persons[0];
+
+    if (sendPerson == NULL) {
+        //puts("no person to send");
+        return gcoap_response(pdu, buf, len, COAP_CODE_INTERNAL_SERVER_ERROR);
+    }
+
+    //encrypt with cbor
+    int bufsize = 128;
+    uint8_t buffer[bufsize];
+    uint8_t size;
+    personToCbor(&person, buffer, bufsize, &size);
+
+    //
+    gcoap_resp_init(pdu, buf, len, COAP_CODE_CONTENT);
+    coap_opt_add_format(pdu, COAP_FORMAT_TEXT);
+    size_t resp_len = coap_opt_finish(pdu, COAP_OPT_FINISH_PAYLOAD);
+
+    //add buffer to payload
+    memcpy((char*)pdu->payload, buffer, size * sizeof(uint8_t));
+    //TODO adjust pdu.payload_len ? 
+    resp_len += size * sizeof(uint8_t);
+
+    return resp_len;
 }
 
 static ssize_t temp_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
