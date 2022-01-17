@@ -63,8 +63,6 @@ static const shell_command_t shell_commands[] = {
 
 struct gps_data gps_data = {0};
 
-bool join_procedure_succeeded = false;
-
 //#define RECV_MSG_QUEUE                   (4U)
 //static msg_t _recv_queue[RECV_MSG_QUEUE];
 //static char _recv_stack[THREAD_STACKSIZE_DEFAULT];
@@ -177,36 +175,7 @@ int main(void)
     gcoap_cli_init();
     char line_buf[SHELL_DEFAULT_BUFSIZE];
 
-    /* 1. initialize the LoRaMAC MAC layer */
-    semtech_loramac_init(&loramac);
-    /* 2. set the keys identifying the device */
-    semtech_loramac_set_deveui(&loramac, deveui);
-    semtech_loramac_set_appeui(&loramac, appeui);
-    semtech_loramac_set_appkey(&loramac, appkey);
-    /* 3. join the network */
-    if (semtech_loramac_join(&loramac, LORAMAC_JOIN_OTAA) != SEMTECH_LORAMAC_JOIN_SUCCEEDED) {
-        puts("LoRa join procedure failed");
-        setLEDColor(0, RED);
-        //return 1;
-    } else {
-        puts("LoRa join procedure succeeded");
-        join_procedure_succeeded = true;
-        setLEDColor(0, GREEN);
-    }
-    /* 3.5 Join succeded, create thread */
-
-
-    // INIT GPS
-    // kernel_pid_t lora_tid = thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _periodic_send, NULL, "Send Thread");
-    // initGPSData(lora_tid);
-    // thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _periodic_send, NULL, "Send Thread");
-    //thread_create(_send_stack, sizeof(_send_stack), THREAD_PRIORITY_MAIN - 1, 0, _test_thread, NULL, "Test Thread");
     
-    // thread_create(_height_control_stack, sizeof(_height_control_stack), THREAD_PRIORITY_MAIN - 1, 0, heightControLoop, NULL, "Height Control Loop");
-    // hightest recordes windspeed 408km/h | using 450km/h = 125 m/s | accuracy of gps ~5m | therefore movement by 5m takes 0.04s = 40000 microseconds | is this even usefull?
-    //initializeDataAccess(40000);
-    //initializeHeightControl(100, 10000000);
-
     addPersonToBuffer(&dummyPerson);
     
     person_t persons[10];

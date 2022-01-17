@@ -101,9 +101,7 @@ static gcoap_listener_t _listener = {
 static char _last_req_path[_LAST_REQ_PATH_MAX];
 
 /* Counts requests sent by CLI. */
-static uint16_t req_count = 0;
-
-extern bool join_procedure_succeeded;
+static uint16_t req_count = 0;valvedown
 
 /* Adds link format params to resource list */
 static ssize_t _encode_link(const coap_resource_t *resource, char *buf,
@@ -127,12 +125,7 @@ static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, voi
 {
     (void)ctx;
     setLEDColor(0, WHITE);
-    xtimer_msleep(100);
-    if(join_procedure_succeeded){
-        setLEDColor(0, GREEN);
-    } else {
-        setLEDColor(0, RED);
-    }
+
     if ( gpio_read(VALVE_DOWN_PIN) || gpio_read(VALVE_UP_PIN) ){
         return gcoap_response(pdu, buf, len, COAP_CODE_CONFLICT);
     }
@@ -156,12 +149,7 @@ static ssize_t valve_up_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void 
 {
     (void)ctx;
     setLEDColor(0, WHITE);
-    xtimer_msleep(100);
-    if(join_procedure_succeeded){
-        setLEDColor(0, GREEN);
-    } else {
-        setLEDColor(0, RED);
-    }
+    
     if ( gpio_read(GPIO_PIN(0,2)) || gpio_read(GPIO_PIN(0,4)) ){
         return gcoap_response(pdu, buf, len, COAP_CODE_CONFLICT);
     }
@@ -185,12 +173,7 @@ static ssize_t _gps_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
 {
     (void)ctx;
     setLEDColor(0, WHITE);
-    xtimer_msleep(100);
-    if(join_procedure_succeeded){
-        setLEDColor(0, GREEN);
-    } else {
-        setLEDColor(0, RED);
-    }
+    
     uint8_t buffer[128] = {0};
     CborEncoder encoder, mapEncoder;
     cbor_encoder_init(&encoder, buffer, sizeof(buffer), 0);
@@ -265,12 +248,7 @@ static ssize_t temp_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
 {
     (void)ctx;
     setLEDColor(0, WHITE);
-    xtimer_msleep(100);
-    if(join_procedure_succeeded){
-        setLEDColor(0, GREEN);
-    } else {
-        setLEDColor(0, RED);
-    }
+    
     struct atmospheric_data atmo_dat = {0};
     phydat_t res;
     saul_reg_t *dev = saul_reg;
@@ -292,7 +270,6 @@ static ssize_t temp_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
 
      //Read temperature sensor here and write buffer with sensor value 
     
-    // saul_reg_read(dev, &res);
     res = atmo_dat.temperature;
     resp_len += fmt_u16_dec((char *)pdu->payload, res.val[0]);
     return resp_len;   
@@ -301,13 +278,7 @@ static ssize_t temp_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
 static ssize_t hum_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
 {
     (void)ctx;
-    setLEDColor(0, WHITE);
-    xtimer_msleep(100);
-    if(join_procedure_succeeded){
-        setLEDColor(0, GREEN);
-    } else {
-        setLEDColor(0, RED);
-    }
+    
     struct atmospheric_data atmo_dat = {0};
     phydat_t res;
     saul_reg_t *dev = saul_reg;
@@ -337,13 +308,7 @@ static ssize_t hum_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
 static ssize_t press_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
 {
     (void)ctx;
-    setLEDColor(0, WHITE);
-    xtimer_msleep(100);
-    if(join_procedure_succeeded){
-        setLEDColor(0, GREEN);
-    } else {
-        setLEDColor(0, RED);
-    }
+    
     // struct atmospheric_data atmo_dat = {0};  //TODO
     // phydat_t res;
     saul_reg_t *dev = saul_reg;
