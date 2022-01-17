@@ -56,6 +56,7 @@ static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, voi
 static ssize_t valve_up_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
 static ssize_t temp_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
 static ssize_t hum_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
+static ssize_t pers_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
 static ssize_t press_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
 static ssize_t _gps_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx);
 
@@ -69,9 +70,9 @@ static const coap_resource_t _resources[] = {
     { "/riot/board", COAP_GET, _riot_board_handler, NULL },
     { "/sens/gps", COAP_GET, _gps_handler, NULL},
     { "/sens/hum", COAP_GET , hum_handler, NULL},
+    { "/com/pers", COAP_GET , pers_handler, NULL},
     { "/sens/press", COAP_GET , press_handler, NULL},
-    { "/sens/temp", COAP_GET , temp_handler, NULL},
-    { "/com/pers", COAP_GET , pers_handler, NULL}
+    { "/sens/temp", COAP_GET , temp_handler, NULL}    
 };
 
 static const char *_link_params[] = {
