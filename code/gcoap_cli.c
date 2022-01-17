@@ -126,9 +126,12 @@ static ssize_t _encode_link(const coap_resource_t *resource, char *buf,
 static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
 {
     (void)ctx;
-    setLEDColor(0, WHITE);
+    my_color startColor = getLEDColor(0);
+    setLEDColor(0, GREEN);
+    xtimer_msleep(100);
 
     if ( gpio_read(VALVE_DOWN_PIN) || gpio_read(VALVE_UP_PIN) ){
+        setLEDColor(0, startColor);
         return gcoap_response(pdu, buf, len, COAP_CODE_CONFLICT);
     }
 
@@ -140,9 +143,11 @@ static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, voi
         gpio_set(VALVE_DOWN_PIN);
         wakeUpValveControlFor(valve_open_time);
 
+        setLEDColor(0, startColor);
         return gcoap_response(pdu, buf, len, COAP_CODE_CHANGED);
     }
     else {
+        setLEDColor(0, startColor);
         return gcoap_response(pdu, buf, len, COAP_CODE_BAD_REQUEST);
     }
 }
@@ -150,9 +155,12 @@ static ssize_t valve_down_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, voi
 static ssize_t valve_up_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
 {
     (void)ctx;
-    setLEDColor(0, WHITE);
-    
+    my_color startColor = getLEDColor(0);
+    setLEDColor(0, BLUE);
+    xtimer_msleep(100);
+
     if ( gpio_read(GPIO_PIN(0,2)) || gpio_read(GPIO_PIN(0,4)) ){
+        setLEDColor(0, startColor);
         return gcoap_response(pdu, buf, len, COAP_CODE_CONFLICT);
     }
 
@@ -164,9 +172,11 @@ static ssize_t valve_up_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void 
         gpio_set(VALVE_UP_PIN);
         wakeUpValveControlFor(valve_open_time);
 
+        setLEDColor(0, startColor);
         return gcoap_response(pdu, buf, len, COAP_CODE_CHANGED);
     }
     else {
+        setLEDColor(0, startColor);
         return gcoap_response(pdu, buf, len, COAP_CODE_BAD_REQUEST);
     }
 }
@@ -174,7 +184,8 @@ static ssize_t valve_up_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void 
 static ssize_t _gps_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx)
 {
     (void)ctx;
-    setLEDColor(0, WHITE);
+    my_color startColor = getLEDColor(0);
+    setLEDColor(0, ORANGE);
     
     uint8_t buffer[128] = {0};
     CborEncoder encoder, mapEncoder;
@@ -209,6 +220,10 @@ static ssize_t _gps_handler(coap_pkt_t* pdu, uint8_t *buf, size_t len, void *ctx
     memcpy((char *)pdu->payload, buffer, buffer_size);
     resp_len += buffer_size;
     printHexFromBuffer(buffer, &encoder);
+
+    xtimer_msleep(100);
+    setLEDColor(0, startColor);
+
     return resp_len;   
 }
 

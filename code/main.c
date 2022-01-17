@@ -167,7 +167,7 @@ int main(void)
     gpio_init(GPIO_PIN(0,4), GPIO_OUT);
 
     initLEDs(GPIO_PIN(0,23), GPIO_PIN(0,18));
-    setLEDColor(0, ORANGE);
+    setLEDColor(0, WHITE);
 
 
     /* for the thread running the shell */
@@ -194,6 +194,7 @@ int main(void)
         printf("%02x ", buffer[i]);
     }
     printf("\n");
+    printf(getLEDColor(0) == WHITE ? "WHITE\n" : "ERROR\n");
 
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
     return 0;
