@@ -38,6 +38,7 @@
 
 #include "dataAccess.h"
 #include "valveControl.h"
+#include "transferData.h"
 
 #define ENABLE_DEBUG (0)
 #include "debug.h"
@@ -67,10 +68,10 @@ static const coap_resource_t _resources[] = {
     { "/actu/valvedown", COAP_PUT, valve_down_handler, NULL },
     { "/actu/valveup", COAP_PUT, valve_up_handler, NULL },
     { "/cli/stats", COAP_GET | COAP_PUT, _stats_handler, NULL },
+    { "/com/pers", COAP_GET , pers_handler, NULL},
     { "/riot/board", COAP_GET, _riot_board_handler, NULL },
     { "/sens/gps", COAP_GET, _gps_handler, NULL},
     { "/sens/hum", COAP_GET , hum_handler, NULL},
-    { "/com/pers", COAP_GET , pers_handler, NULL},
     { "/sens/press", COAP_GET , press_handler, NULL},
     { "/sens/temp", COAP_GET , temp_handler, NULL}    
 };
@@ -102,7 +103,7 @@ static gcoap_listener_t _listener = {
 static char _last_req_path[_LAST_REQ_PATH_MAX];
 
 /* Counts requests sent by CLI. */
-static uint16_t req_count = 0;valvedown
+static uint16_t req_count = 0;
 
 /* Adds link format params to resource list */
 static ssize_t _encode_link(const coap_resource_t *resource, char *buf,
@@ -218,7 +219,7 @@ static ssize_t pers_handler(coap_pkt_t* pdu, uint8_t* buf, size_t len, void* ctx
     //get person/s to send
     person_t* sendPerson = NULL;
     person_t persons[10];
-    getPersonBuffer(&persons);
+    getPersonBuffer(persons);
     sendPerson = &persons[0];
 
     if (sendPerson == NULL) {
@@ -230,7 +231,7 @@ static ssize_t pers_handler(coap_pkt_t* pdu, uint8_t* buf, size_t len, void* ctx
     int bufsize = 128;
     uint8_t buffer[bufsize];
     uint8_t size;
-    personToCbor(&person, buffer, bufsize, &size);
+    personToCbor(sendPerson, buffer, bufsize, &size);
 
     //
     gcoap_resp_init(pdu, buf, len, COAP_CODE_CONTENT);

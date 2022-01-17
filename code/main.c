@@ -184,7 +184,7 @@ int main(void)
     addPersonToBuffer(&dummyPerson);
     
     person_t persons[10];
-    getPersonBuffer(&persons);
+    getPersonBuffer(persons);
 
     int bufsize = 128;
     uint8_t buffer[bufsize];
