@@ -175,6 +175,11 @@ int main(void)
     gcoap_cli_init();
     char line_buf[SHELL_DEFAULT_BUFSIZE];
 
+
+    // hightest recordes windspeed 408km/h | using 450km/h = 125 m/s | accuracy of gps ~5m | therefore movement by 5m takes 0.04s = 40000 microseconds | is this even usefull?
+    //initializeDataAccess(40000);
+    //initializeHeightControl(100, 10000000);
+
     
     addPersonToBuffer(&dummyPerson);
     
