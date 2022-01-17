@@ -11,3 +11,8 @@ rfc7252 - coap queries - details in coap anfrage
 
 post / get ID - able to handle blob - prioritize get
     save last 10 IDs
+
+//-----------------------------------------------------------------------------------------------------------//
+prio - presentationosfähig
+zugriff auf ballon via wlan
+    valve up/valve down
