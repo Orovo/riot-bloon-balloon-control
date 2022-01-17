@@ -22,4 +22,5 @@ extern color_rgba_t leds[N_LEDS];
 typedef enum {OFF, WHITE, RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE} my_color;
 
 extern int setLEDColor(uint8_t led, my_color color);
+extern my_color getLEDColor(uint8_t led);
 extern void initLEDs(gpio_t data_pin, gpio_t clk_pin);

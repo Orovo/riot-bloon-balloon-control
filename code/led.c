@@ -63,6 +63,20 @@ int setLEDColor(uint8_t led, my_color color){
     return 0;
 }
 
+my_color getLEDColor(uint8_t led) {
+    if(led < N_LEDS) {
+        if(leds[led].color.b == 0 && leds[led].color.g == 0 && leds[led].color.r == 0) return OFF;
+        if(leds[led].color.b == 255 && leds[led].color.g == 255 && leds[led].color.r == 255) return WHITE;
+        if(leds[led].color.b == 0 && leds[led].color.g == 0 && leds[led].color.r == 255) return RED;
+        if(leds[led].color.b == 255 && leds[led].color.g == 0 && leds[led].color.r == 0) return BLUE;
+        if(leds[led].color.b == 0 && leds[led].color.g == 255 && leds[led].color.r == 0) return GREEN;
+        if(leds[led].color.b == 0 && leds[led].color.g == 255 && leds[led].color.r == 255) return YELLOW;
+        if(leds[led].color.b == 0 && leds[led].color.g == 128 && leds[led].color.r == 255) return ORANGE;
+        if(leds[led].color.b == 255 && leds[led].color.g == 0 && leds[led].color.r == 128) return PURPLE;
+    }
+    return -1;
+}
+
 void initLEDs(gpio_t data_pin, gpio_t clk_pin){
     /* initialize all LED color values to black (off) */
     memset(leds, 0, sizeof(color_rgba_t) * N_LEDS);
