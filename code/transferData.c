@@ -25,6 +25,11 @@ void addPersonToBuffer(person_t *person) {
     personBuffer_entries++;
 }
 
+void printPerson(person_t* person) {
+    printf("person {\n\tid: %s\n\tstatus: %i\n\tlat: %d\n\tlon: %d\n\ttimestamp: % u\n}",
+        person->id, person->status, person->lat, person->lon, person->timestamp);
+}
+
 //To cbor conversion functions
 void personToCbor(person_t *sourcePerson, uint8_t *destination, int destination_size, uint8_t *sizeOfCbor) {
     //TODO check destination_size for size - error if to large

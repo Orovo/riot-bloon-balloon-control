@@ -26,6 +26,7 @@ typedef struct person person_t;
 
 void getPersonBuffer(person_t *destination);
 void addPersonToBuffer(person_t *person);
+void printPerson(person_t* person);
 void personToCbor(person_t *sourcePerson, uint8_t *destination, int destination_size, uint8_t *sizeOfCbor);
 
 
