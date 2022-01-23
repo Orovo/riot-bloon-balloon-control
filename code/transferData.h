@@ -28,6 +28,6 @@ void getPersonBuffer(person_t *destination);
 void addPersonToBuffer(person_t *person);
 void printPerson(person_t* person);
 void personToCbor(person_t *sourcePerson, uint8_t *destination, int destination_size, uint8_t *sizeOfCbor);
-
+void cborToPerson(uint8_t* sourceCbor, int source_length, person_t* destinationPerson);
 
 #endif

@@ -193,8 +193,11 @@ int main(void)
     for(int i = 0; i < size; i++) {
         printf("%02x ", buffer[i]);
     }
-    printf("\n");
-    printf(getLEDColor(0) == WHITE ? "WHITE\n" : "ERROR\n");
+    printf("\n\n");
+    person_t decodedPerson = { 0 };
+    cborToPerson(buffer, size, &decodedPerson);
+    printPerson(&decodedPerson);
+    printf("\n\n");
 
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
     return 0;
