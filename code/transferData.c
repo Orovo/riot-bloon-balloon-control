@@ -26,7 +26,7 @@ void addPersonToBuffer(person_t *person) {
 }
 
 void printPerson(person_t* person) {
-    printf("person {\n\tid: %s\n\tstatus: %i\n\tlat: %d\n\tlon: %d\n\ttimestamp: % u\n}",
+    printf("person {\n\tid: %s\n\tstatus: %i\n\tlat: %f\n\tlon: %f\n\ttimestamp: %llu\n}",
         person->id, person->status, person->lat, person->lon, person->timestamp);
 }
 
@@ -66,43 +66,44 @@ void cborToPerson(uint8_t *sourceCbor, int source_length, person_t *destinationP
     CborValue element;
 
     cbor_value_map_find_value(&map, "id", &element);
-    if (!cbor_value_is_text_string(&element) {//TODO Testoutput
+    if (!cbor_value_is_text_string(&element)) {//TODO Testoutput
         printf("ERROR - CborValue element is not text string - id\n");
         return;
     }
-    cbor_value_copy_text_string(&element, destinationPerson->id, 14, null);
+    size_t length = 14;
+    cbor_value_copy_text_string(&element, destinationPerson->id, &length, NULL);
 
     cbor_value_map_find_value(&map, "status", &element);
-    if (!cbor_value_is_integer(&element) {//TODO Testoutput
+    if (!cbor_value_is_integer(&element)) {//TODO Testoutput
         printf("ERROR - CborValue element is not integer - status\n");
         return;
     }
-    cbor_value_get_int(&element, destinationPerson->status);
+    cbor_value_get_int(&element, &(destinationPerson->status));
 
     cbor_value_map_find_value(&map, "lat", &element);
-    if (!cbor_value_is_double(&element) {//TODO Testoutput
+    if (!cbor_value_is_double(&element)) {//TODO Testoutput
     //if (!cbor_value_is_float(&element) {//TODO Testoutput
         //printf("ERROR - CborValue element is not float - lat\n");
         printf("ERROR - CborValue element is not double - lat\n");
         return;
     }
     //cbor_value_get_float(&element, destinationPerson->lat);
-    cbor_value_get_double(&element, destinationPerson->lat);
+    cbor_value_get_double(&element, &(destinationPerson->lat));
 
     cbor_value_map_find_value(&map, "lon", &element);
-    if (!cbor_value_is_double(&element) {//TODO Testoutput
+    if (!cbor_value_is_double(&element)) {//TODO Testoutput
     //if (!cbor_value_is_float(&element) {//TODO Testoutput
         //printf("ERROR - CborValue element is not float - lon\n");
         printf("ERROR - CborValue element is not double - lon\n");
         return;
     }
     //cbor_value_get_float(&element, destinationPerson->lon);
-    cbor_value_get_double(&element, destinationPerson->lon);
+    cbor_value_get_double(&element, &(destinationPerson->lon));
 
     cbor_value_map_find_value(&map, "timestamp", &element);
-    if (!cbor_value_is_unsigned_integer(&element) {//TODO Testoutput
+    if (!cbor_value_is_unsigned_integer(&element)) {//TODO Testoutput
         printf("ERROR - CborValue element is not simple type - timestamp\n");
         return;
     }
-    cbor_value_get_uint64(&element, destinationPerson->timestamp);
+    cbor_value_get_uint64(&element, &(destinationPerson->timestamp));
 }
