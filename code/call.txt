@@ -4,3 +4,4 @@ BUILD_IN_DOCKER=1 BOARD=mini-loon make flash
 
 BUILD_IN_DOCKER=1 BOARD=mini-loon make term
 
+BUILD_IN_DOCKER=1 BOARD=mini-loon make flash term
