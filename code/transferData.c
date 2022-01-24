@@ -59,7 +59,16 @@ void cborToPerson(uint8_t *sourceCbor, int source_length, person_t *destinationP
     CborValue map;
     cbor_value_enter_container(&value, &map);
     if (!cbor_value_is_map(&map)) {//TODO Testoutput
-        printf("ERROR - CborValue map is not of type map\n");
+        printf("ERROR - CborValue map is not of type map\ntype is: 0x%x\n", (int)cbor_value_get_type(&map));
+        if(cbor_value_is_text_string(&map)) {
+            printf("ERROR - map is 'text_string'\n");
+            size_t buflen;
+            cbor_value_get_string_length(&map, &buflen);
+            char *buffer = malloc(buflen * sizeof(char));
+            cbor_value_copy_text_string(&map, buffer, &buflen, NULL);
+            printf("ERROR - value is: '%s'\n", buffer);
+            free(buffer);
+        }
         return;
     }
    
@@ -67,16 +76,14 @@ void cborToPerson(uint8_t *sourceCbor, int source_length, person_t *destinationP
 
     cbor_value_map_find_value(&map, "id", &element);
     if (!cbor_value_is_text_string(&element)) {//TODO Testoutput
-        printf("ERROR - CborValue element is not text string - id\n");
-        return;
+        printf("ERROR - CborValue element is not text string - id\ntype is: 0x%x\n", (int)cbor_value_get_type(&element));
     }
     size_t length = 14;
     cbor_value_copy_text_string(&element, destinationPerson->id, &length, NULL);
 
     cbor_value_map_find_value(&map, "status", &element);
     if (!cbor_value_is_integer(&element)) {//TODO Testoutput
-        printf("ERROR - CborValue element is not integer - status\n");
-        return;
+        printf("ERROR - CborValue element is not integer - status\ntype is: 0x%x\n", (int)cbor_value_get_type(&element));
     }
     cbor_value_get_int(&element, &(destinationPerson->status));
 
@@ -84,8 +91,7 @@ void cborToPerson(uint8_t *sourceCbor, int source_length, person_t *destinationP
     if (!cbor_value_is_double(&element)) {//TODO Testoutput
     //if (!cbor_value_is_float(&element) {//TODO Testoutput
         //printf("ERROR - CborValue element is not float - lat\n");
-        printf("ERROR - CborValue element is not double - lat\n");
-        return;
+        printf("ERROR - CborValue element is not double - lat\ntype is: 0x%x\n", (int)cbor_value_get_type(&element));
     }
     //cbor_value_get_float(&element, destinationPerson->lat);
     cbor_value_get_double(&element, &(destinationPerson->lat));
@@ -94,16 +100,14 @@ void cborToPerson(uint8_t *sourceCbor, int source_length, person_t *destinationP
     if (!cbor_value_is_double(&element)) {//TODO Testoutput
     //if (!cbor_value_is_float(&element) {//TODO Testoutput
         //printf("ERROR - CborValue element is not float - lon\n");
-        printf("ERROR - CborValue element is not double - lon\n");
-        return;
+        printf("ERROR - CborValue element is not double - lon\ntype is: 0x%x\n", (int)cbor_value_get_type(&element));
     }
     //cbor_value_get_float(&element, destinationPerson->lon);
     cbor_value_get_double(&element, &(destinationPerson->lon));
 
     cbor_value_map_find_value(&map, "timestamp", &element);
     if (!cbor_value_is_unsigned_integer(&element)) {//TODO Testoutput
-        printf("ERROR - CborValue element is not simple type - timestamp\n");
-        return;
+        printf("ERROR - CborValue element is not simple type - timestamp\ntype is: 0x%x\n", (int)cbor_value_get_type(&element));
     }
     cbor_value_get_uint64(&element, &(destinationPerson->timestamp));
 }
